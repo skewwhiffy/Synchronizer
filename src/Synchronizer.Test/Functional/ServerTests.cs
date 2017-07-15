@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -8,13 +10,18 @@ using Xunit;
 
 namespace Synchronizer.Test.Functional
 {
-    public class ServerTests
+    public class ServerTests : IDisposable
     {
         private Server _server;
 
         public ServerTests()
         {
-            _server = new Server();
+            _server = new Server(Directory.GetCurrentDirectory()); ;
+        }
+
+        public void Dispose()
+        {
+            _server.Dispose();
         }
 
         [Fact]

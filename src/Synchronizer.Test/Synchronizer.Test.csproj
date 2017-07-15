@@ -19,5 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Synchronizer.Common\Synchronizer.Common.csproj" />
     <ProjectReference Include="..\Synchronizer.WebApi\Synchronizer.WebApi.csproj" />
+    <ProjectReference Include="..\Synchronizer.Client\Synchronizer.Client.csproj" />
   </ItemGroup>
 </Project>
