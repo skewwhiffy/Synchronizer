@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,9 +31,29 @@ namespace Synchronizer.Test.Functional.Infrastructure
 
         public void Dispose()
         {
-            _program.Dispose();
-            _tokenSource.Cancel();
-            Sandbox.Dispose();
+            var exceptions = new List<Exception>();
+            while (exceptions.Count < 5)
+            {
+                try
+                {
+                    _tokenSource.Cancel();
+                    _program.Dispose();
+                    Sandbox.Dispose();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+            if (exceptions.Any())
+            {
+                if (exceptions.Count == 1)
+                {
+                    throw exceptions.Single();
+                }
+                throw new AggregateException(exceptions);
+            }
         }
     }
 }

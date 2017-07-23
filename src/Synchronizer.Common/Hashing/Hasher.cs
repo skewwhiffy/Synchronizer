@@ -9,15 +9,26 @@ namespace Synchronizer.Common.Hashing
 {
     public class Hasher : IHasher
     {
-        public Task<FileMetadata> GetHashAsync(string path)
+        public FileMetadata GetFileMetadata(string path, string root)
         {
-            var hash = GetHash(path);
+            var hash = GetHashForFile(path);
             var lastWritten = GetLastWritten(path);
             return new FileMetadata
             {
                 Hash = hash,
                 LastWritten = lastWritten
-            }.Pipe(Task.FromResult);
+            };
+        }
+
+        public string GetHashForPayload(string payload)
+        {
+            using (var md5 = MD5.Create())
+            {
+                return payload
+                    .Pipe(System.Text.Encoding.ASCII.GetBytes)
+                    .Pipe(md5.ComputeHash)
+                    .Pipe(FormatHash);
+            }
         }
 
         private DateTime GetLastWritten(string path)
@@ -25,17 +36,20 @@ namespace Synchronizer.Common.Hashing
             return path.Pipe(File.GetLastWriteTimeUtc);
         }
 
-        private string GetHash(string path)
+        private string GetHashForFile(string path)
         {
             using (var md5 = MD5.Create())
             using (var stream = File.OpenRead(path))
             {
                 return md5
                     .ComputeHash(stream)
-                    .Pipe(BitConverter.ToString)
-                    .Replace("-", string.Empty)
-                    .ToLowerInvariant();
+                    .Pipe(FormatHash);
             }
         }
+
+        private string FormatHash(byte[] value) => value
+            .Pipe(BitConverter.ToString)
+            .Replace("-", string.Empty)
+            .ToLowerInvariant();
     }
 }

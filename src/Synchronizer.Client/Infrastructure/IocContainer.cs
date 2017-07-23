@@ -1,6 +1,8 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Synchronizer.Client.ArgsParser;
+using Synchronizer.Client.Manifest;
+using Synchronizer.Common.Hashing;
 
 namespace Synchronizer.Client.Infrastructure
 {
@@ -12,6 +14,8 @@ namespace Synchronizer.Client.Infrastructure
         {
             IServiceCollection serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<IArgs>(args);
+            serviceCollection.AddTransient<IManifester, Manifester>();
+            serviceCollection.AddTransient<IHasher, Hasher>();
             _provider = serviceCollection.BuildServiceProvider();
         }
 

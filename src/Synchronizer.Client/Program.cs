@@ -11,6 +11,7 @@ namespace Synchronizer.Client
     public class Program : IDisposable
     {
         private readonly IServiceProvider _iocContainer;
+        private Daemon _daemon;
 
         public Program(string[] args) : this(args.Pipe(a => Args.For(a)))
         {
@@ -31,11 +32,13 @@ namespace Synchronizer.Client
 
         public void Dispose()
         {
+            _daemon?.Dispose();
         }
 
         public async Task MainAsync(CancellationToken ct = default(CancellationToken))
         {
-            Console.WriteLine("Hello world");
+            _daemon = new Daemon(_iocContainer);
+            await _daemon.StartAsync(ct);
         }
     }
 }

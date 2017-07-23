@@ -5,6 +5,7 @@ namespace Synchronizer.Common.Hashing
 {
     public interface IHasher
     {
-        Task<FileMetadata> GetHashAsync(string path);
+        FileMetadata GetFileMetadata(string path, string root);
+        string GetHashForPayload(string payload);
     }
 }

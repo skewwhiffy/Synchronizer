@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Newtonsoft.Json;
+using Synchronizer.Common.Model;
 using Synchronizer.Test.Functional.Infrastructure;
 using Xunit;
 
@@ -18,6 +22,8 @@ namespace Synchronizer.Test.Functional
             var httpClient = new HttpClient();
             _client = new TestClient(Directory.GetCurrentDirectory(), httpClient);
             _sandbox = _client.Sandbox;
+            _sandbox.CreateRandomFolders();
+            _sandbox.CreateRandomFiles(3);
         }
 
         [Fact]
@@ -34,6 +40,37 @@ namespace Synchronizer.Test.Functional
                 await Task.Delay(100);
                 infiniteLoopGuard--;
                 infiniteLoopGuard.Should().BeGreaterOrEqualTo(0);
+            }
+
+            infiniteLoopGuard = 5;
+            var files = Directory
+                .GetFiles(_sandbox.DirectoryName, "*", SearchOption.AllDirectories)
+                .Where(f => !f.Contains("manifest"))
+                .ToList();
+            List<FileMetadata> manifestDeserialized;
+            while (true)
+            {
+                string manifestRaw = null;
+                try
+                {
+                    manifestRaw = File.ReadAllText(expectedManifestFile);
+                    manifestDeserialized = JsonConvert.DeserializeObject<List<FileMetadata>>(manifestRaw);
+                    if (files.Count == manifestDeserialized.Count)
+                    {
+                        break;
+                    }
+                }
+                catch
+                {
+                }
+                await Task.Delay(100);
+                infiniteLoopGuard--;
+                infiniteLoopGuard.Should().BeGreaterOrEqualTo(0);
+            }
+
+            foreach (var file in files)
+            {
+
             }
         }
 

@@ -23,7 +23,7 @@ namespace Synchronizer.Test.Common.Hashing
         }
 
         [Fact]
-        public async Task WhenHashingFile_ThenMd5IsPopulatedCorrectly()
+        public void WhenHashingFile_ThenMd5IsPopulatedCorrectly()
         {
             string hash;
             using (var md5 = MD5.Create())
@@ -32,17 +32,17 @@ namespace Synchronizer.Test.Common.Hashing
                 hash = md5.ComputeHash(stream).Pipe(BitConverter.ToString).Replace("-", string.Empty).ToLowerInvariant();
             }
 
-            var metadata = await _hasher.GetHashAsync(_file);
+            var metadata = _hasher.GetFileMetadata(_file, Path.GetDirectoryName(_file));
 
             Assert.Equal(hash, metadata.Hash);
         }
 
         [Fact]
-        public async Task WhenHashingFile_ThenLastModifiedIsPopulatedCorrectly()
+        public void WhenHashingFile_ThenLastModifiedIsPopulatedCorrectly()
         {
             var lastWritten = File.GetLastWriteTimeUtc(_file);
 
-            var metadata = await _hasher.GetHashAsync(_file);
+            var metadata = _hasher.GetFileMetadata(_file, Path.GetDirectoryName(_file));
 
             Assert.Equal(lastWritten, metadata.LastWritten);
         }
